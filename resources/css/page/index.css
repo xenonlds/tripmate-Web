@@ -9,13 +9,13 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
- 
+
   .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 16px 24px 40px 24px;
   }
- 
+
 
   main {
     margin-top: 24px;
@@ -250,3 +250,7 @@
   .action-button i {
     font-size: 14px;
   }
+
+
+
+  

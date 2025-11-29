@@ -97,6 +97,7 @@
 
           if (data.role === "staff") window.location.href = "{{ url('staff/dashboard') }}";
           else if (data.role === "owner") window.location.href = "{{ url('business_owner/dashboards') }}";
+          else if (data.role === "admin") window.location.href = "{{ url('admin/dashboards') }}";
           else window.location.href = "{{ url('tourist/home') }}";
         } else {
           alert(data.message);
