@@ -277,8 +277,7 @@
             </div>
 
             <ul class="nav-links">
-                <li><a href="{{ route('admin.dashboards') }}" class="active">Overview</a></li>
-                <li><a href="{{ route('admin.staff.index') }}">Staff</a></li>
+                <li><a href="{{ route('admin.dashboards') }}" class="active">Dashboard</a></li>
                 <li><a href="{{ route('admin.member.index') }}">Members</a></li>
                 <li><a href="{{ route('admin.community.index') }}">Community</a></li>
                 <li><a href="{{ route('admin.business.index') }}">Business</a></li>

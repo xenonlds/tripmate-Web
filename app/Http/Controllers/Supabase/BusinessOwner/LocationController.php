@@ -12,7 +12,7 @@ class LocationController extends BaseSupabaseController
     public function getOwnerDetails()
     {
         $userId = session('user_id');
-        $result = $this->getTableData('Bussiness_Owner', ['user_id' => 'eq.' . $userId]);
+        $result = $this->getTableData('Business_Owner', ['user_id' => 'eq.' . $userId]);
         return $result;
     }
 
@@ -111,12 +111,12 @@ class LocationController extends BaseSupabaseController
                  $businessData = [
                     'business_id'  => $newBusinessId,
                     'hotel_id'     =>$newHotelId ,
-                    'owner_id'   => $ownerDetails[0]['owner_id'],     
+                    'owner_id'   => $ownerDetails[0]['owner_id'],
                 ];
 
                 $stateData = [
                     'hotel_id'  => $newHotelId,
-                    'owner_id'   => $ownerDetails[0]['owner_id'],     
+                    'owner_id'   => $ownerDetails[0]['owner_id'],
                 ];
 
                 $this->supabase->insert('Hotel', $hotelData);

@@ -24,6 +24,13 @@ class BaseSupabaseController extends Controller
         return $this->supabase->insert($table, $data);
     }
 
+// ✅ ADD THIS METHOD
+    protected function insertRecord($table, $data)
+    {
+        return $this->createRecord($table, $data);
+    }
+    // ✅ END OF NEW METHOD
+
     protected function updateRecord($table, $filters, $data)
     {
         return $this->supabase->update($table, $filters, $data);

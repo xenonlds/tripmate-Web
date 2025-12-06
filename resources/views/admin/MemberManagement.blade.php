@@ -416,7 +416,6 @@
 
       <ul class="nav-links">
         <li><a href="/admin/dashboards">Overview</a></li>
-        <li><a href="/admin/StaffManagement">Staff</a></li>
         <li><a href="/admin/MemberManagement" class="active">Members</a></li>
         <li><a href="/admin/CommunityManagement">Community</a></li>
         <li><a href="/admin/BusinessManagement">Business</a></li>

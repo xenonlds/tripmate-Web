@@ -13,7 +13,7 @@ class RoomController extends BaseSupabaseController
     public function getOwnerDetails()
     {
         $userId = session('user_id');
-        $result = $this->getTableData('Bussiness_Owner', ['user_id' => 'eq.' . $userId]);
+        $result = $this->getTableData('Business_Owner', ['user_id' => 'eq.' . $userId]);
         return $result;
     }
 

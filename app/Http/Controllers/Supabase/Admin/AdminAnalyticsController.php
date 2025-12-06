@@ -8,7 +8,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminAnalyticsController extends BaseSupabaseController
 {
-    protected string $businessOwnerTable = 'Bussiness_Owner';
+    protected string $businessOwnerTable = 'Business_Owner';
     protected string $communityTable     = 'Community';
     protected string $reportTable        = 'post_reports';
     protected string $interactionTable   = 'Post_Interactions';

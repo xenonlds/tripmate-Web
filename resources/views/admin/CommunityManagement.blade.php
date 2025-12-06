@@ -1,37 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Community Management - TripMate</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: #f8fafc;
             min-height: 100vh;
         }
 
-        /* Header Navigation */
+        /* Navigation */
         .header-nav {
             background: white;
             border-bottom: 1px solid #e2e8f0;
-            padding: 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            padding: 0;
         }
-
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -123,33 +116,54 @@
         }
 
         /* Main Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 32px 24px;
+        .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+        .page-title { font-size: 32px; font-weight: 700; color: #1e293b; margin-bottom: 32px; }
+
+        /* Tabs */
+        .function-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: #1e293b; }
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
         }
 
-        .page-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 32px;
-        }
+        /* Tab Content */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-        /* Search and Filter Section */
+        /* Controls */
         .controls-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
             gap: 16px;
+            flex-wrap: wrap;
         }
-
-        .search-box {
+        .search-filter-group {
+            display: flex;
+            gap: 12px;
             flex: 1;
-            max-width: 300px;
+            max-width: 600px;
         }
-
+        .search-box { flex: 1; max-width: 300px; min-width: 200px; }
         .search-box input {
             width: 100%;
             padding: 10px 16px;
@@ -158,30 +172,36 @@
             font-size: 14px;
             font-family: 'Inter', sans-serif;
         }
-
         .search-box input:focus {
             outline: none;
             border-color: #3b82f6;
         }
 
-        /* Table Card */
+        .filter-box select {
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .filter-box select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        /* Table */
         .table-card {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
         th {
             padding: 16px 24px;
             text-align: left;
@@ -189,73 +209,30 @@
             font-weight: 600;
             color: #1e293b;
         }
-
         td {
             padding: 16px 24px;
             font-size: 14px;
             color: #475569;
             border-bottom: 1px solid #f1f5f9;
         }
+        tbody tr:hover { background: #f8fafc; }
+        tbody tr:last-child td { border-bottom: none; }
 
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        tbody tr:hover {
-            background: #f8fafc;
-        }
-
-        /* Report Count Badge */
-        .report-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .report-badge.low {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .report-badge.none {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        /* Status Badge */
-        .status-badge {
+        /* Badges */
+        .badge {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
         }
+        .badge.blocked { background: #fee2e2; color: #991b1b; }
+        .badge.active { background: #dcfce7; color: #166534; }
+        .badge.hidden { background: #fef3c7; color: #92400e; }
+        .badge.warning { background: #fecaca; color: #b91c1c; }
+        .badge.info { background: #dbeafe; color: #1e40af; }
 
-        .status-badge.active {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status-badge.hidden {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-badge.inactive {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Operation Buttons */
-        .operation-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
+        /* Buttons */
         .btn {
             padding: 6px 12px;
             border: 1px solid #e2e8f0;
@@ -265,72 +242,34 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
-
-        .btn:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-        }
-
-        .btn-view {
-            color: #3b82f6;
-            border-color: #3b82f6;
-        }
-
-        .btn-view:hover {
-            background: #dbeafe;
-        }
-
-        .btn-hide {
-            color: #f59e0b;
-            border-color: #f59e0b;
-        }
-
-        .btn-hide:hover {
-            background: #fef3c7;
-        }
-
-        .btn-delete {
-            color: #ef4444;
-            border-color: #ef4444;
-        }
-
-        .btn-delete:hover {
-            background: #fee2e2;
-        }
+        .btn:hover { background: #f8fafc; }
+        .btn-primary { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-danger { background: #ef4444; color: white; border-color: #ef4444; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-warning { background: #f59e0b; color: white; border-color: #f59e0b; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-sm { padding: 4px 8px; font-size: 12px; }
+        .btn-secondary { background: #64748b; color: white; border-color: #64748b; }
+        .btn-secondary:hover { background: #475569; }
 
         /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            padding: 24px;
-        }
-
-        .page-btn {
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
+        #paginationContainer {
             background: white;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-
-        .page-btn:hover {
-            background: #f8fafc;
-        }
-
-        .page-btn.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        .page-btn:disabled {
+        #paginationContainer button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+        #paginationContainer button:disabled:hover {
+            background: white;
         }
 
         /* Modal */
@@ -341,27 +280,25 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.5);
             z-index: 1000;
             overflow-y: auto;
+            padding: 20px;
         }
-
         .modal.active {
             display: flex;
             align-items: center;
             justify-content: center;
         }
-
         .modal-content {
             background: white;
             border-radius: 12px;
-            max-width: 800px;
-            width: 90%;
+            max-width: 600px;
+            width: 100%;
+            padding: 24px;
             max-height: 90vh;
             overflow-y: auto;
-            padding: 24px;
         }
-
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -370,75 +307,141 @@
             padding-bottom: 16px;
             border-bottom: 1px solid #e2e8f0;
         }
-
         .modal-header h2 {
-            font-size: 24px;
+            font-size: 20px;
             color: #1e293b;
         }
-
-        .close-modal {
+        .close-btn {
             background: none;
             border: none;
             font-size: 24px;
+            color: #64748b;
             cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-btn:hover { color: #1e293b; }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .form-group small {
+            display: block;
+            margin-top: 4px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
             color: #64748b;
         }
-
-        .post-detail {
-            margin-bottom: 20px;
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
 
-        .post-detail h3 {
-            font-size: 18px;
-            margin-bottom: 12px;
-            color: #1e293b;
-        }
-
-        .post-detail p {
-            color: #475569;
-            line-height: 1.6;
-        }
-
-        .post-image {
-            max-width: 100%;
-            border-radius: 8px;
-            margin: 16px 0;
-        }
-
-        .reports-list {
-            margin-top: 20px;
-        }
-
-        .report-item {
-            padding: 12px;
-            background: #f8fafc;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .report-item strong {
-            color: #1e293b;
-        }
-
+        /* Loading */
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 48px 24px;
             color: #64748b;
+        }
+        .spinner {
+            border: 3px solid #f1f5f9;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+        .card-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .card-body {
+            padding: 16px 24px;
+        }
+
+        /* Action Buttons Container */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         /* Responsive */
         @media (max-width: 1024px) {
             .nav-links {
                 display: none;
-            }
-
-            table {
-                font-size: 13px;
-            }
-
-            th,
-            td {
-                padding: 12px 16px;
             }
         }
 
@@ -447,448 +450,1278 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-
+            .search-filter-group {
+                flex-direction: column;
+                max-width: 100%;
+            }
             .search-box {
                 max-width: 100%;
             }
-
-            .operation-buttons {
-                flex-wrap: wrap;
+            .filter-box select {
+                width: 100%;
+            }
+            table {
+                font-size: 12px;
+            }
+            th, td {
+                padding: 12px 16px;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            #paginationContainer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+            #paginationContainer > div:first-child,
+            #paginationContainer > div:last-child {
+                display: none;
             }
         }
     </style>
 </head>
-
 <body>
-    <!-- Header Navigation -->
-    <header class="header-nav">
-        <div class="nav-container">
-            <div class="logo-section">
-                <img src="{{ asset('image/tripmate.png') }}" alt="TripMate logo">
-                <div class="logo-text">
-                    <h1>TripMate Admin</h1>
-                </div>
-            </div>
-
-            <ul class="nav-links">
-                <li><a href="/admin/dashboards">Overview</a></li>
-                <li><a href="/admin/StaffManagement">Staff</a></li>
-                <li><a href="/admin/MemberManagement">Members</a></li>
-                <li><a href="/admin/CommunityManagement" class="active">Community</a></li>
-                <li><a href="/admin/BusinessManagement">Business</a></li>
-            </ul>
-
-            <div class="user-section">
-                <div class="user-info">
-                    <p>{{ $adminName ?? 'Admin' }}</p>
-                    <span>Administrator</span>
-                </div>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
+  <!-- Header Navigation -->
+  <header class="header-nav">
+    <div class="nav-container">
+      <div class="logo-section">
+        <img src="{{ asset('image/tripmate.png') }}" alt="TripMate logo">
+        <div class="logo-text">
+          <h1>TripMate Admin</h1>
         </div>
-    </header>
+      </div>
 
-    <!-- Main Container -->
+      <ul class="nav-links">
+        <li><a href="/admin/dashboards">Overview</a></li>
+        <li><a href="/admin/MemberManagement">Members</a></li>
+        <li><a href="/admin/CommunityManagement" class="active">Community</a></li>
+        <li><a href="/admin/BusinessManagement">Business</a></li>
+      </ul>
+
+      <div class="user-section">
+        <div class="user-info">
+          <p>Admin User</p>
+          <span>Administrator</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
     <div class="container">
         <h1 class="page-title">Community Management</h1>
 
-        @if (session('error'))
-            <div style="background: #fee2e2; color: #991b1b; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-                <strong>Error:</strong> {{ session('error') }}
-            </div>
-        @endif
+        <!-- Function Tabs -->
+        <div class="function-tabs">
+            <button class="tab-btn active" onclick="switchTab('content')">
+                <i class="fas fa-edit"></i> Content CRUD
+            </button>
+            <button class="tab-btn" onclick="switchTab('blocking')">
+                <i class="fas fa-ban"></i> User Blocking
+            </button>
+            <button class="tab-btn" onclick="switchTab('warnings')">
+                <i class="fas fa-exclamation-triangle"></i> Warnings
+            </button>
+        </div>
 
-        <!-- Search Section -->
-        <div class="controls-section">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search community posts..."
-                    onkeyup="debounceSearch()">
+        <!-- Tab 1: Content CRUD -->
+        <div id="contentTab" class="tab-content active">
+            <div class="controls-section">
+                <div class="search-filter-group">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search posts..." onkeyup="debounceSearch()">
+                    </div>
+                    <div class="filter-box">
+                        <select id="statusFilter" onchange="loadPosts(1)">
+                            <option value="">All Posts</option>
+                            <option value="active">Active Only</option>
+                            <option value="hidden">Hidden Only</option>
+                        </select>
+                    </div>
+                    <div class="filter-box">
+                        <select id="reportFilter" onchange="filterPosts()">
+                            <option value="">All Reports</option>
+                            <option value="0">No Reports</option>
+                            <option value="1">Has Reports</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-primary" onclick="createPost()">
+                        <i class="fas fa-plus"></i> Create Post
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshPosts()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Status</th>
+                            <th>Reports</th>
+                            <th>Warnings</th>
+                            <th style="width: 200px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="postsTableBody">
+                        <!-- Data will be loaded via JavaScript -->
+                        <tr>
+                            <td colspan="6">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    <p>Loading posts...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div id="paginationContainer" style="display: none; margin-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div style="font-size: 12px; color: #94a3b8;">
+                    <i class="fas fa-keyboard"></i> Use arrow keys or P/N to navigate
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="btn btn-sm" id="prevBtn" onclick="changePage('prev')" disabled>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <div id="pageInfo" style="font-size: 14px; color: #64748b; padding: 0 16px;">
+                        Page <strong>1</strong> of <strong>1</strong>
+                    </div>
+                    <button class="btn btn-sm" id="nextBtn" onclick="changePage('next')" disabled>
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div style="font-size: 12px; color: #94a3b8;" id="pageStats">
+                    Showing posts 1-10
+                </div>
             </div>
         </div>
 
-        <!-- Community Posts Table -->
-        <div class="table-card">
-            <table id="communityTable">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Author</th>
-                        <th>Status</th>
-                        <th>Reports</th>
-                        <th>Likes</th>
-                        <th>Created</th>
-                        <th>Operation</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    @forelse($posts ?? [] as $post)
-                        <tr data-post-id="{{ $post->postID ?? $post['postID'] }}">
-                            <td>
-                                <div
-                                    style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    {{ $post->title ?? $post['title'] }}
-                                </div>
-                            </td>
-                            <td>{{ $post->tourist_name ?? ($post['tourist_name'] ?? 'Unknown') }}</td>
-                            <td>
-                                @php
-                                    $status = $post->status ?? ($post['status'] ?? 'active');
-                                    $isHidden = $post->is_hidden ?? ($post['is_hidden'] ?? false);
-                                @endphp
-                                @if ($status === 'active' && !$isHidden)
-                                    <span class="status-badge active">Active</span>
-                                @elseif($isHidden)
-                                    <span class="status-badge hidden">Hidden</span>
-                                @else
-                                    <span class="status-badge inactive">Inactive</span>
-                                @endif
-                            </td>
-                            <td>
-                                @php
-                                    $reportCount = $post->report_count ?? ($post['report_count'] ?? 0);
-                                @endphp
-                                @if ($reportCount >= 5)
-                                    <span class="report-badge">{{ $reportCount }} time(s)</span>
-                                @elseif($reportCount > 0)
-                                    <span class="report-badge low">{{ $reportCount }} time(s)</span>
-                                @else
-                                    <span class="report-badge none">0 time(s)</span>
-                                @endif
-                            </td>
-                            <td>{{ $post->like_count ?? ($post['like_count'] ?? 0) }}</td>
-                            <td>{{ isset($post->created_at) ? \Carbon\Carbon::parse($post->created_at)->format('M d, Y') : \Carbon\Carbon::parse($post['created_at'] ?? now())->format('M d, Y') }}
-                            </td>
-                            <td>
-                                <div class="operation-buttons">
-                                    <button class="btn btn-view"
-                                        onclick="viewPost('{{ $post->postID ?? $post['postID'] }}')">View</button>
-                                    <button class="btn btn-hide"
-                                        onclick="toggleHide('{{ $post->postID ?? $post['postID'] }}', {{ $post->is_hidden ?? ($post['is_hidden'] ?? false) ? 'false' : 'true' }})">
-                                        {{ $post->is_hidden ?? ($post['is_hidden'] ?? false) ? 'Unhide' : 'Hide' }}
-                                    </button>
-                                    <button class="btn btn-delete"
-                                        onclick="deletePost('{{ $post->postID ?? $post['postID'] }}', '{{ addslashes($post->title ?? $post['title']) }}')">Delete</button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
+        <!-- Tab 2: User Blocking -->
+        <div id="blockingTab" class="tab-content">
+            <div class="controls-section">
+                <h2 style="font-size: 20px; color: #1e293b;">Blocked Users</h2>
+                <button class="btn btn-primary" onclick="loadBlockedUsers()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+
+            <div class="table-card">
+                <table>
+                    <thead>
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">
-                                No community posts found
+                            <th>User Name</th>
+                            <th>Email</th>
+                            <th>Reason</th>
+                            <th>Blocked Date</th>
+                            <th>Expires</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blockedUsersTableBody">
+                        <tr>
+                            <td><strong>Jane Smith</strong></td>
+                            <td>jane.smith@example.com</td>
+                            <td>Inappropriate content</td>
+                            <td>12/1/2024</td>
+                            <td><span class="badge blocked">Permanent</span></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="confirmUnblock('user2')">
+                                    <i class="fas fa-unlock"></i> Unblock
+                                </button>
                             </td>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-            <!-- Pagination -->
-            <div class="pagination" id="paginationContainer">
-                @if (isset($totalPages) && $totalPages > 1)
-                    <button class="page-btn" onclick="changePage({{ $page - 1 }})"
-                        {{ $page <= 1 ? 'disabled' : '' }}>
-                        Previous
-                    </button>
+        <!-- Tab 3: Warnings -->
+        <div id="warningsTab" class="tab-content">
+            <div class="controls-section">
+                <h2 style="font-size: 20px; color: #1e293b;">Warning System</h2>
+                <button class="btn btn-primary" onclick="loadWarningData()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
 
-                    @for ($i = 1; $i <= $totalPages; $i++)
-                        <button class="page-btn {{ $i == $page ? 'active' : '' }}"
-                            onclick="changePage({{ $i }})">
-                            {{ $i }}
-                        </button>
-                    @endfor
+            <div class="grid-2">
+                <!-- Recent Warnings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Recent Warnings</h3>
+                    </div>
+                    <div class="card-body" id="recentWarningsContent">
+                        <div style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <strong style="color: #1e293b;">Beach Resort Review</strong>
+                                <span class="badge warning">2 warnings</span>
+                            </div>
+                            <div style="font-size: 12px; color: #64748b;">
+                                By: Jane Smith
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    <button class="page-btn" onclick="changePage({{ $page + 1 }})"
-                        {{ $page >= $totalPages ? 'disabled' : '' }}>
-                        Next
-                    </button>
-                @endif
+                <!-- Users with Most Warnings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Users at Risk</h3>
+                    </div>
+                    <div class="card-body" id="usersAtRiskContent">
+                        <div style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <strong style="color: #1e293b;">Jane Smith</strong>
+                                <span class="badge warning">Medium Risk</span>
+                            </div>
+                            <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
+                                Total warnings: 2
+                                <span class="badge blocked" style="margin-left: 8px;">Blocked</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- View Post Modal -->
-    <div id="viewModal" class="modal">
+    <!-- Edit Post Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2>Edit Post</h2>
+                <button class="close-btn" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <form id="editPostForm">
+                <div id="editAlertContainer"></div>
+
+                <!-- Post Preview -->
+                <div id="editPostPreview" class="card" style="margin-bottom: 16px; display: none;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-eye"></i> Current Post Preview</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="editPreviewImages" style="margin-bottom: 12px;"></div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            <strong>Author:</strong> <span id="editPreviewAuthor"></span><br>
+                            <strong>Created:</strong> <span id="editPreviewDate"></span><br>
+                            <strong>Likes:</strong> <span id="editPreviewLikes"></span> |
+                            <strong>Status:</strong> <span id="editPreviewStatus"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="editTitle" required maxlength="100" placeholder="Enter post title">
+                    <small><span id="titleCharCount">0</span>/100 characters</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="editDescription" maxlength="255" rows="4" placeholder="Enter post description (optional)"></textarea>
+                    <small><span id="descCharCount">0</span>/255 characters</small>
+                </div>
+
+                <div class="alert" style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; margin-bottom: 16px;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Note: Images cannot be edited. To change images, please create a new post.</span>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')" style="flex: 1;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Issue Warning Modal -->
+    <div id="warningModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Post Details</h2>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
+                <h2>Issue Warning</h2>
+                <button class="close-btn" onclick="closeModal('warningModal')">&times;</button>
             </div>
-            <div id="modalBody" class="loading">
-                Loading...
+            <form id="warningForm" onsubmit="handleWarning(event)">
+                <input type="hidden" id="warningPostId">
+                <input type="hidden" id="warningTouristId">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Warning will be issued to the post author.</span>
+                </div>
+                <div class="form-group">
+                    <label>Warning Type</label>
+                    <select id="warningType" required>
+                        <option value="minor">Minor (1st offense)</option>
+                        <option value="moderate">Moderate (2nd offense - Post hidden)</option>
+                        <option value="severe">Severe (3rd offense - User blocked)</option>
+                    </select>
+                    <small>Warning escalation is automatic based on user's history</small>
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <select id="warningReason" required>
+                        <option value="">Select a reason...</option>
+                        <option value="Inappropriate content">Inappropriate content</option>
+                        <option value="Spam">Spam</option>
+                        <option value="Harassment">Harassment</option>
+                        <option value="Hate speech">Hate speech</option>
+                        <option value="False information">False information</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Details</label>
+                    <textarea id="warningDetails" rows="3" placeholder="Additional details about the violation..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-warning" style="width: 100%;">
+                    <i class="fas fa-exclamation-triangle"></i> Issue Warning
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Block User Modal -->
+    <div id="blockModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Block User</h2>
+                <button class="close-btn" onclick="closeModal('blockModal')">&times;</button>
             </div>
+            <form id="blockForm" onsubmit="handleBlockUser(event)">
+                <input type="hidden" id="blockTouristId">
+                <div class="alert alert-error">
+                    <i class="fas fa-ban"></i>
+                    <span>This will prevent the user from posting and hide all their content.</span>
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <input type="text" id="blockReason" required placeholder="Why are you blocking this user?">
+                </div>
+                <div class="form-group">
+                    <label>Details (Optional)</label>
+                    <textarea id="blockDetails" rows="2" placeholder="Additional context..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Duration (days)</label>
+                    <input type="number" id="blockDuration" min="1" placeholder="Leave empty for permanent">
+                    <small>Leave empty for permanent block</small>
+                </div>
+                <button type="submit" class="btn btn-danger" style="width: 100%;">
+                    <i class="fas fa-ban"></i> Block User
+                </button>
+            </form>
         </div>
     </div>
 
     <script>
-        let searchTimeout;
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        let currentEditPostId = null;
+        let currentPage = 1;
+        let totalPages = 1;
 
-        function debounceSearch() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                loadPosts(1);
-            }, 500);
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        function switchTab(tab) {
+            // Remove active from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active to clicked tab
+            event.target.closest('.tab-btn').classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+
+            // Load data for specific tabs
+            if (tab === 'content') {
+                loadPosts();
+            } else if (tab === 'blocking') {
+                loadBlockedUsers();
+            } else if (tab === 'warnings') {
+                loadWarningData();
+            }
+        }
+
+        // ============================================
+        // CONTENT CRUD - LOAD POSTS
+        // ============================================
+        function createPost() {
+            window.location.href = '/admin/community/create';
         }
 
         function loadPosts(page = 1) {
             const search = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            const tbody = document.getElementById('postsTableBody');
 
-            fetch(`/admin/CommunityManagement?page=${page}&search=${encodeURIComponent(search)}`, {
+            tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div><p>Loading posts...</p></div></td></tr>';
+
+            const startTime = performance.now(); // Track loading time
+
+            fetch(`/admin/CommunityManagement?page=${page}&search=${encodeURIComponent(search)}&status=${status}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => {
+                if (!r.ok) throw new Error('Network response was not ok');
+                return r.json();
+            })
+            .then(data => {
+                const endTime = performance.now();
+                console.log(`✅ Posts loaded in ${(endTime - startTime).toFixed(2)}ms`);
+                console.log(`📊 Total posts fetched: ${data.posts?.length || 0}`);
+                console.log(`📄 Page ${data.currentPage || 1} of ${data.totalPages || 1}`);
+
+                // Update pagination state - IMPORTANT: Parse as integers
+                currentPage = parseInt(data.currentPage) || 1;
+                totalPages = parseInt(data.totalPages) || 1;
+                updatePaginationControls();
+
+                // Count hidden vs active posts
+                if (data.posts && data.posts.length > 0) {
+                    const hiddenCount = data.posts.filter(p => p.is_hidden).length;
+                    const activeCount = data.posts.length - hiddenCount;
+                    console.log(`   ├─ Active: ${activeCount}`);
+                    console.log(`   ├─ Hidden: ${hiddenCount}`);
+                    console.log(`   └─ Posts with warnings: ${data.posts.filter(p => p.warning_count > 0).length}`);
+                }
+
+                if (!data.posts || data.posts.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>No posts found</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = data.posts.map(post => {
+                    // Show both active and hidden posts with appropriate badges
+                    let statusBadge;
+                    if (post.is_hidden) {
+                        statusBadge = '<span class="badge hidden">Hidden</span>';
+                    } else {
+                        statusBadge = '<span class="badge active">Active</span>';
+                    }
+
+                    const blockedBadge = post.is_blocked
+                        ? '<span class="badge blocked">Blocked</span>'
+                        : '';
+
+                    // Special badge for admin posts
+                    const isAdminPost = post.tourist_name === 'TripMate Admin';
+                    const adminBadge = isAdminPost
+                        ? '<span class="badge info" style="margin-left: 4px;">ADMIN</span>'
+                        : '';
+
+                    return `
+                        <tr>
+                            <td>
+                                <strong>${escapeHtml(post.title)}</strong>
+                                ${post.description ? '<br><small style="color: #64748b;">' + escapeHtml(post.description.substring(0, 60)) + '...</small>' : ''}
+                            </td>
+                            <td>
+                                ${escapeHtml(post.tourist_name)}
+                                ${adminBadge}
+                                ${blockedBadge}
+                            </td>
+                            <td>${statusBadge}</td>
+                            <td><span class="badge info">${post.report_count} reports</span></td>
+                            <td><span class="badge warning">${post.warning_count} warnings</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-primary" onclick="window.open('/admin/community/${post.postID}', '_blank')" title="View full post details">
+                                        <i class="fas fa-eye"></i> Details
+                                    </button>
+                                    <button class="btn btn-sm" onclick='editPost(${JSON.stringify(post).replace(/'/g, "&#39;")})' title="Edit post">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    ${post.is_hidden ? `
+                                    <button class="btn btn-sm btn-warning" onclick="togglePostVisibility('${post.postID}', false)" title="Unhide post">
+                                        <i class="fas fa-eye"></i> Unhide
+                                    </button>
+                                    ` : `
+                                    <button class="btn btn-sm btn-secondary" onclick="togglePostVisibility('${post.postID}', true)" title="Hide post">
+                                        <i class="fas fa-eye-slash"></i> Hide
+                                    </button>
+                                    `}
+                                    ${!isAdminPost ? `
+                                    <button class="btn btn-warning btn-sm" onclick="showWarningModal('${post.postID}', '${post.tourist_id}')">
+                                        <i class="fas fa-exclamation-triangle"></i> Warn
+                                    </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            })
+            .catch(err => {
+                console.error('Error loading posts:', err);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="alert alert-error">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Error loading posts. Please try again.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ============================================
+        // EDIT POST
+        // ============================================
+        function editPost(post) {
+            currentEditPostId = post.postID;
+
+            // Show modal first
+            document.getElementById('editModal').classList.add('active');
+
+            const titleInput = document.getElementById('editTitle');
+            const descInput = document.getElementById('editDescription');
+
+            // Set values
+            titleInput.value = post.title || '';
+            descInput.value = post.description || '';
+
+            // Update character counts immediately
+            updateCharCountDisplay('titleCharCount', post.title || '', 100);
+            updateCharCountDisplay('descCharCount', post.description || '', 255);
+
+            // Show preview if images exist
+            const previewContainer = document.getElementById('editPostPreview');
+            const imagesContainer = document.getElementById('editPreviewImages');
+
+            if (previewContainer && imagesContainer && post.Images) {
+                try {
+                    const images = JSON.parse(post.Images);
+                    if (images && images.length > 0) {
+                        imagesContainer.innerHTML = images.map(img =>
+                            `<img src="${img}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin-right: 8px; border: 2px solid #e2e8f0;" onerror="this.style.display='none'">`
+                        ).join('');
+                        previewContainer.style.display = 'block';
+                    } else {
+                        previewContainer.style.display = 'none';
+                    }
+                } catch (e) {
+                    if (previewContainer) previewContainer.style.display = 'none';
+                }
+            } else if (previewContainer) {
+                previewContainer.style.display = 'none';
+            }
+
+            // Update preview info with null checks
+            const previewAuthor = document.getElementById('editPreviewAuthor');
+            const previewDate = document.getElementById('editPreviewDate');
+            const previewLikes = document.getElementById('editPreviewLikes');
+            const previewStatus = document.getElementById('editPreviewStatus');
+
+            if (previewAuthor) previewAuthor.textContent = post.tourist_name || 'Unknown';
+            if (previewDate) previewDate.textContent = post.created_at ? new Date(post.created_at).toLocaleDateString() : 'Unknown';
+            if (previewLikes) previewLikes.textContent = post.like_count || 0;
+            if (previewStatus) {
+                previewStatus.innerHTML = post.is_hidden
+                    ? '<span class="badge hidden">Hidden</span>'
+                    : '<span class="badge active">Active</span>';
+            }
+
+            // Clear any previous alerts
+            const alertContainer = document.getElementById('editAlertContainer');
+            if (alertContainer) alertContainer.innerHTML = '';
+        }
+
+        // Initialize character count listeners (call once on page load)
+        function initCharCountListeners() {
+            const titleInput = document.getElementById('editTitle');
+            const descInput = document.getElementById('editDescription');
+
+            if (titleInput) {
+                titleInput.addEventListener('input', function() {
+                    updateCharCountDisplay('titleCharCount', this.value, 100);
+                });
+            }
+
+            if (descInput) {
+                descInput.addEventListener('input', function() {
+                    updateCharCountDisplay('descCharCount', this.value, 255);
+                });
+            }
+        }
+
+        // Update character count display
+        function updateCharCountDisplay(countId, value, maxLength) {
+            const countEl = document.getElementById(countId);
+            if (!countEl) return;
+
+            const length = value.length;
+            countEl.textContent = length;
+
+            // Change color based on usage
+            if (length > maxLength * 0.9) {
+                countEl.style.color = '#dc2626';
+            } else if (length > maxLength * 0.7) {
+                countEl.style.color = '#f59e0b';
+            } else {
+                countEl.style.color = '#64748b';
+            }
+        }
+
+        document.getElementById('editPostForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const alertContainer = document.getElementById('editAlertContainer');
+            const titleInput = document.getElementById('editTitle');
+            const descInput = document.getElementById('editDescription');
+
+            // Client-side validation
+            if (!titleInput.value.trim()) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Title is required</span>
+                    </div>
+                `;
+                titleInput.focus();
+                return;
+            }
+
+            if (titleInput.value.trim().length < 3) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Title must be at least 3 characters long</span>
+                    </div>
+                `;
+                titleInput.focus();
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            alertContainer.innerHTML = '';
+
+            try {
+                const response = await fetch(`/admin/community/${currentEditPostId}`, {
+                    method: 'PUT',
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    updateTable(data.posts);
-                    updatePagination(data.currentPage, data.totalPages);
-                })
-                .catch(error => {
-                    console.error('Error loading posts:', error);
-                    alert('Failed to load posts');
-                });
-        }
-
-        function updateTable(posts) {
-            const tbody = document.getElementById('tableBody');
-
-            if (posts.length === 0) {
-                tbody.innerHTML =
-                    '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">No community posts found</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = posts.map(post => {
-                const statusBadge = post.status === 'active' && !post.is_hidden ?
-                    '<span class="status-badge active">Active</span>' :
-                    post.is_hidden ?
-                    '<span class="status-badge hidden">Hidden</span>' :
-                    '<span class="status-badge inactive">Inactive</span>';
-
-                const reportBadge = post.report_count >= 5 ?
-                    `<span class="report-badge">${post.report_count} time(s)</span>` :
-                    post.report_count > 0 ?
-                    `<span class="report-badge low">${post.report_count} time(s)</span>` :
-                    '<span class="report-badge none">0 time(s)</span>';
-
-                const date = new Date(post.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        title: titleInput.value.trim(),
+                        description: descInput.value.trim()
+                    })
                 });
 
-                return `
-          <tr data-post-id="${post.postID}">
-            <td>
-              <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                ${post.title}
-              </div>
-            </td>
-            <td>${post.tourist_name || 'Unknown'}</td>
-            <td>${statusBadge}</td>
-            <td>${reportBadge}</td>
-            <td>${post.like_count || 0}</td>
-            <td>${date}</td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-view" onclick="viewPost('${post.postID}')">View</button>
-                <button class="btn btn-hide" onclick="toggleHide('${post.postID}', ${!post.is_hidden})">
-                  ${post.is_hidden ? 'Unhide' : 'Hide'}
-                </button>
-                <button class="btn btn-delete" onclick="deletePost('${post.postID}', '${post.title.replace(/'/g, "\\'")}')">Delete</button>
-              </div>
-            </td>
-          </tr>
-        `;
-            }).join('');
-        }
+                const data = await response.json();
 
-        function updatePagination(currentPage, totalPages) {
-            const container = document.getElementById('paginationContainer');
+                if (response.ok && data.success) {
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Post updated successfully!</span>
+                        </div>
+                    `;
 
-            if (totalPages <= 1) {
-                container.innerHTML = '';
-                return;
+                    // Wait a moment to show success message
+                    setTimeout(() => {
+                        closeModal('editModal');
+                        loadPosts(currentPage);
+                    }, 1000);
+                } else {
+                    throw new Error(data.message || 'Failed to update post');
+                }
+            } catch (error) {
+                console.error('Error updating post:', error);
+                alertContainer.innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>${error.message || 'Failed to update post. Please try again.'}</span>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
             }
+        });
 
-            let html = `
-        <button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>
-          Previous
-        </button>
-      `;
-
-            for (let i = 1; i <= totalPages; i++) {
-                html += `
-          <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
-            ${i}
-          </button>
-        `;
-            }
-
-            html += `
-        <button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>
-          Next
-        </button>
-      `;
-
-            container.innerHTML = html;
+        // ============================================
+        // ISSUE WARNING
+        // ============================================
+        function showWarningModal(postId, touristId) {
+            document.getElementById('warningPostId').value = postId;
+            document.getElementById('warningTouristId').value = touristId;
+            document.getElementById('warningModal').classList.add('active');
         }
 
-        function changePage(page) {
-            if (page < 1) return;
-            loadPosts(page);
-        }
+        document.getElementById('warningForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Issuing...';
 
-        function viewPost(postId) {
-            const modal = document.getElementById('viewModal');
-            const modalBody = document.getElementById('modalBody');
-
-            modal.classList.add('active');
-            modalBody.innerHTML = '<div class="loading">Loading...</div>';
-
-            fetch(`/admin/community/${postId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const post = data.post;
-                    const reports = data.reports || [];
-
-                    let html = `
-            <div class="post-detail">
-              <h3>Title</h3>
-              <p>${post.title}</p>
-            </div>
-            <div class="post-detail">
-              <h3>Description</h3>
-              <p>${post.description || 'No description'}</p>
-            </div>
-            <div class="post-detail">
-              <h3>Author</h3>
-              <p>${post.tourist_name || 'Unknown'} (${post.tourist_email || 'N/A'})</p>
-            </div>
-            <div class="post-detail">
-              <h3>Status</h3>
-              <p>${post.status} ${post.is_hidden ? '(Hidden)' : ''}</p>
-            </div>
-            <div class="post-detail">
-              <h3>Statistics</h3>
-              <p>Likes: ${post.like_count || 0} | Comments: ${data.commentsCount || 0}</p>
-            </div>
-          `;
-
-                    if (post.Images) {
-                        try {
-                            const images = JSON.parse(post.Images);
-                            if (Array.isArray(images) && images.length > 0) {
-                                html += '<div class="post-detail"><h3>Images</h3>';
-                                images.forEach(img => {
-                                    html += `<img src="${img}" class="post-image" alt="Post image">`;
-                                });
-                                html += '</div>';
-                            }
-                        } catch (e) {
-                            console.error('Error parsing images:', e);
-                        }
-                    }
-
-                    if (reports.length > 0) {
-                        html += `
-              <div class="reports-list">
-                <h3>Reports (${reports.length})</h3>
-                ${reports.map(report => `
-                      <div class="report-item">
-                        <strong>Reporter:</strong> ${report.reporter_name || 'Unknown'}<br>
-                        <strong>Reason:</strong> ${report.reason}<br>
-                        <strong>Details:</strong> ${report.details || 'No details provided'}<br>
-                        <strong>Status:</strong> ${report.status}<br>
-                        <strong>Date:</strong> ${new Date(report.created_at).toLocaleString()}
-                      </div>
-                    `).join('')}
-              </div>
-            `;
-                    }
-
-                    modalBody.innerHTML = html;
-                })
-                .catch(error => {
-                    console.error('Error loading post:', error);
-                    modalBody.innerHTML =
-                        '<div class="post-detail"><p style="color: #ef4444;">Failed to load post details</p></div>';
-                });
-        }
-
-        function closeModal() {
-            document.getElementById('viewModal').classList.remove('active');
-        }
-
-        function toggleHide(postId, shouldHide) {
-            const status = shouldHide ? 'hidden' : 'active';
-
-            fetch(`/admin/community/${postId}/status`, {
+            try {
+                const response = await fetch('/admin/community/warning/issue', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
                     body: JSON.stringify({
-                        status
+                        post_id: document.getElementById('warningPostId').value,
+                        warning_type: document.getElementById('warningType').value,
+                        reason: document.getElementById('warningReason').value,
+                        details: document.getElementById('warningDetails').value
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Failed to update post status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating post:', error);
-                    alert('Failed to update post status');
                 });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(data.message);
+                    closeModal('warningModal');
+                    loadPosts();
+                    // Reset form
+                    document.getElementById('warningForm').reset();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to issue warning'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to issue warning. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Issue Warning';
+            }
+        });
+
+        // ============================================
+        // DELETE POST
+        // ============================================
+        function togglePostVisibility(postId, shouldHide) {
+            const action = shouldHide ? 'hide' : 'unhide';
+            if (!confirm(`Are you sure you want to ${action} this post?`)) return;
+
+            const status = shouldHide ? 'hidden' : 'active';
+
+            fetch(`/admin/community/${postId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ status: status })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Post ${action}d successfully!`);
+                    loadPosts();
+                } else {
+                    alert('Error: ' + (data.message || `Failed to ${action} post`));
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert(`Failed to ${action} post. Please try again.`);
+            });
         }
 
-        function deletePost(postId, title) {
-            if (!confirm(
-                    `Are you sure you want to delete this post: "${title}"?\n\nThis will also delete all comments, interactions, and reports associated with it.`
-                    )) {
-                return;
-            }
+        // ============================================
+        // BLOCK USER
+        // ============================================
+        function blockUserModal(touristId) {
+            document.getElementById('blockTouristId').value = touristId;
+            document.getElementById('blockModal').classList.add('active');
+        }
 
-            fetch(`/admin/community/${postId}`, {
-                    method: 'DELETE',
+        document.getElementById('blockForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Blocking...';
+
+            try {
+                const response = await fetch('/admin/community/user/block', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Failed to delete post');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting post:', error);
-                    alert('Failed to delete post');
+                    },
+                    body: JSON.stringify({
+                        tourist_id: document.getElementById('blockTouristId').value,
+                        reason: document.getElementById('blockReason').value,
+                        details: document.getElementById('blockDetails').value,
+                        duration_days: document.getElementById('blockDuration').value || null
+                    })
                 });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(data.message);
+                    closeModal('blockModal');
+                    loadPosts();
+                    // Reset form
+                    document.getElementById('blockForm').reset();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to block user'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to block user. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-ban"></i> Block User';
+            }
+        });
+
+        // ============================================
+        // LOAD BLOCKED USERS
+        // ============================================
+        function loadBlockedUsers() {
+            const tbody = document.getElementById('blockedUsersTableBody');
+            tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div><p>Loading blocked users...</p></div></td></tr>';
+
+            fetch('/admin/community/users/blocked')
+            .then(r => {
+                if (!r.ok) throw new Error('Network response was not ok');
+                return r.json();
+            })
+            .then(data => {
+                if (!data.blocked_users || data.blocked_users.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="fas fa-user-check"></i>
+                                    <p>No blocked users</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = data.blocked_users.map(user => {
+                    const blockedDate = new Date(user.blocked_at).toLocaleDateString();
+                    const expiresText = user.expires_at
+                        ? new Date(user.expires_at).toLocaleDateString()
+                        : 'Permanent';
+
+                    return `
+                        <tr>
+                            <td><strong>${escapeHtml(user.tourist_name)}</strong></td>
+                            <td>${escapeHtml(user.tourist_email)}</td>
+                            <td>${escapeHtml(user.reason)}</td>
+                            <td>${blockedDate}</td>
+                            <td>
+                                ${user.expires_at
+                                    ? '<span class="badge warning">' + expiresText + '</span>'
+                                    : '<span class="badge blocked">Permanent</span>'}
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="confirmUnblock('${user.tourist_id}')">
+                                    <i class="fas fa-unlock"></i> Unblock
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            })
+            .catch(err => {
+                console.error('Error loading blocked users:', err);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="alert alert-error">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Error loading blocked users. Please try again.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
+        // ============================================
+        // UNBLOCK USER
+        // ============================================
+        function confirmUnblock(touristId) {
+            if (!confirm('Are you sure you want to unblock this user?')) {
+                return;
+            }
+            unblockUser(touristId);
+        }
+
+        async function unblockUser(touristId) {
+            try {
+                const response = await fetch('/admin/community/user/unblock', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ tourist_id: touristId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(data.message);
+                    loadBlockedUsers();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to unblock user'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to unblock user. Please try again.');
+            }
+        }
+
+        // ============================================
+        // LOAD WARNING DATA
+        // ============================================
+        function loadWarningData() {
+            loadRecentWarnings();
+            loadUsersAtRisk();
+        }
+
+        // Helper function to fetch all posts across all pages
+        async function fetchAllPosts() {
+            try {
+                // First, get page 1 to know total pages
+                const firstResponse = await fetch('/admin/CommunityManagement?page=1', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const firstData = await firstResponse.json();
+
+                let allPosts = [...firstData.posts];
+                const totalPages = firstData.totalPages || 1;
+
+                // If there are more pages, fetch them all
+                if (totalPages > 1) {
+                    const pagePromises = [];
+                    for (let page = 2; page <= totalPages; page++) {
+                        pagePromises.push(
+                            fetch(`/admin/CommunityManagement?page=${page}`, {
+                                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                            }).then(r => r.json())
+                        );
+                    }
+
+                    const additionalPages = await Promise.all(pagePromises);
+                    additionalPages.forEach(pageData => {
+                        if (pageData.posts) {
+                            allPosts = [...allPosts, ...pageData.posts];
+                        }
+                    });
+                }
+
+                return allPosts;
+            } catch (error) {
+                console.error('Error fetching all posts:', error);
+                return [];
+            }
+        }
+
+        function loadRecentWarnings() {
+            const container = document.getElementById('recentWarningsContent');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading warnings...</p></div>';
+
+            // Fetch ALL posts to show all warnings (not just page 1)
+            // We need to make multiple requests to get all pages
+            fetchAllPosts().then(allPosts => {
+                // Get posts with warnings
+                const postsWithWarnings = allPosts
+                    .filter(post => post.warning_count > 0)
+                    .sort((a, b) => b.warning_count - a.warning_count)
+                    .slice(0, 5);
+
+                if (postsWithWarnings.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>No recent warnings</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = postsWithWarnings.map(post => `
+                    <div style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <strong style="color: #1e293b;">${escapeHtml(post.title)}</strong>
+                            <span class="badge warning">${post.warning_count} warnings</span>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            By: ${escapeHtml(post.tourist_name)}
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                container.innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Error loading warnings</span>
+                    </div>
+                `;
+            });
+        }
+
+        function loadUsersAtRisk() {
+            const container = document.getElementById('usersAtRiskContent');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading data...</p></div>';
+
+            // Fetch ALL posts to aggregate warnings correctly
+            fetchAllPosts().then(allPosts => {
+                // Aggregate warnings by user
+                const userWarnings = {};
+                allPosts.forEach(post => {
+                    if (post.warning_count > 0) {
+                        if (!userWarnings[post.tourist_id]) {
+                            userWarnings[post.tourist_id] = {
+                                name: post.tourist_name,
+                                tourist_id: post.tourist_id,
+                                warnings: 0,
+                                is_blocked: post.is_blocked
+                            };
+                        }
+                        userWarnings[post.tourist_id].warnings += post.warning_count;
+                    }
+                });
+
+                const usersArray = Object.values(userWarnings)
+                    .sort((a, b) => b.warnings - a.warnings)
+                    .slice(0, 5);
+
+                if (usersArray.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-user-check"></i>
+                            <p>No users at risk</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = usersArray.map(user => {
+                    let riskLevel = 'info';
+                    let riskText = 'Low Risk';
+                    if (user.warnings >= 3) {
+                        riskLevel = 'blocked';
+                        riskText = 'High Risk';
+                    } else if (user.warnings >= 2) {
+                        riskLevel = 'warning';
+                        riskText = 'Medium Risk';
+                    }
+
+                    return `
+                        <div style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <strong style="color: #1e293b;">${escapeHtml(user.name)}</strong>
+                                <span class="badge ${riskLevel}">${riskText}</span>
+                            </div>
+                            <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
+                                Total warnings: ${user.warnings}
+                                ${user.is_blocked ? '<span class="badge blocked" style="margin-left: 8px;">Blocked</span>' : ''}
+                            </div>
+                            ${!user.is_blocked ? `
+                                <button class="btn btn-danger btn-sm" onclick="blockUserModal('${user.tourist_id}')">
+                                    <i class="fas fa-ban"></i> Block User
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                container.innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Error loading data</span>
+                    </div>
+                `;
+            });
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function refreshPosts() {
+            loadPosts(1); // Reset to page 1 when refreshing
+        }
+
+        let searchTimeout;
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => loadPosts(1), 500); // Reset to page 1 when searching
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+                '`': '&#x60;'
+            };
+            return text.replace(/[&<>"'`]/g, m => map[m]);
+        }
+
+        // ============================================
+        // PAGINATION FUNCTIONS
+        // ============================================
+        function changePage(direction) {
+            console.log(`🔄 ChangePage called: direction=${direction}, currentPage=${currentPage} (type: ${typeof currentPage})`);
+            if (direction === 'prev' && currentPage > 1) {
+                const nextPage = parseInt(currentPage) - 1;
+                console.log(`⬅️ Going to previous page: ${nextPage}`);
+                loadPosts(nextPage);
+                scrollToTop();
+            } else if (direction === 'next' && currentPage < totalPages) {
+                const nextPage = parseInt(currentPage) + 1;
+                console.log(`➡️ Going to next page: ${nextPage}`);
+                loadPosts(nextPage);
+                scrollToTop();
+            }
+        }
+
+        function scrollToTop() {
+            // Smooth scroll to the table
+            const table = document.querySelector('.table-card');
+            if (table) {
+                table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function updatePaginationControls() {
+            const container = document.getElementById('paginationContainer');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageInfo = document.getElementById('pageInfo');
+            const pageStats = document.getElementById('pageStats');
+
+            // Show/hide pagination
+            if (totalPages > 1) {
+                container.style.display = 'flex';
+            } else {
+                container.style.display = 'none';
+                return;
+            }
+
+            // Update page info
+            pageInfo.innerHTML = `Page <strong>${currentPage}</strong> of <strong>${totalPages}</strong>`;
+
+            // Update stats (assuming 10 posts per page)
+            const postsPerPage = 10;
+            const startPost = ((currentPage - 1) * postsPerPage) + 1;
+            const endPost = Math.min(currentPage * postsPerPage, totalPages * postsPerPage);
+            pageStats.innerHTML = `Showing posts ${startPost}-${endPost}`;
+
+            // Enable/disable buttons
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+
+            // Update button styles
+            if (prevBtn.disabled) {
+                prevBtn.style.opacity = '0.5';
+                prevBtn.style.cursor = 'not-allowed';
+            } else {
+                prevBtn.style.opacity = '1';
+                prevBtn.style.cursor = 'pointer';
+            }
+
+            if (nextBtn.disabled) {
+                nextBtn.style.opacity = '0.5';
+                nextBtn.style.cursor = 'not-allowed';
+            } else {
+                nextBtn.style.opacity = '1';
+                nextBtn.style.cursor = 'pointer';
+            }
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Keyboard shortcuts for pagination
+        document.addEventListener('keydown', function(e) {
+            // Only work when no modal is open and not typing in inputs
+            if (document.querySelector('.modal.active') ||
+                document.activeElement.tagName === 'INPUT' ||
+                document.activeElement.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            // Left arrow or 'p' for previous page
+            if ((e.key === 'ArrowLeft' || e.key === 'p') && currentPage > 1) {
+                changePage('prev');
+            }
+            // Right arrow or 'n' for next page
+            else if ((e.key === 'ArrowRight' || e.key === 'n') && currentPage < totalPages) {
+                changePage('next');
+            }
+        });
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPosts();
+
+            // Initialize character count listeners for edit modal
+            initCharCountListeners();
+        });
+
+        // ============================================
+        // LOGOUT FUNCTION
+        // ============================================
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 window.location.href = "{{ url('/logout') }}";
             }
         }
-
-        // Close modal when clicking outside
-        document.getElementById('viewModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
     </script>
 </body>
-
 </html>

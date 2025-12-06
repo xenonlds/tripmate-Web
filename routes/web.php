@@ -22,8 +22,9 @@ use App\Http\Controllers\Supabase\Staff\{
 
 use App\Http\Controllers\Supabase\Admin\AdminStaffController;
 use App\Http\Controllers\Supabase\Admin\AdminMemberController;
+use App\Http\Controllers\Supabase\Admin\MemberDetailsController;
 use App\Http\Controllers\Supabase\Admin\AdminCommunityController;
-use App\Http\Controllers\Supabase\Admin\AdminAnalyticsController; // ✅ NEW
+use App\Http\Controllers\Supabase\Admin\AdminAnalyticsController;
 
 Route::get('/', [IndexController::class, 'index'])->name('index');
 
@@ -40,6 +41,17 @@ Route::get('auth/login', function () {
     return view('auth.login');
 })->name('login');
 
+// Logout route
+Route::get('/logout', function () {
+    session()->flush();
+    session()->invalidate();
+    session()->regenerateToken();
+    return redirect()->route('login')->with('success', 'You have been logged out successfully.');
+})->name('logout');
+
+// ============================================
+// BUSINESS OWNER ROUTES
+// ============================================
 Route::prefix('/business_owner')->group(function () {
     Route::get('/dashboards', [OwnerDashboard::class, 'getOwnerDetails'])->middleware('role:owner');
     Route::get('/location', function () {
@@ -69,57 +81,106 @@ Route::prefix('/business_owner')->group(function () {
     Route::post('/promotions/store', [OwnerPromotion::class, 'store'])->middleware('role:owner');
 });
 
+// ============================================
+// STAFF ROUTES
+// ============================================
 Route::prefix('/staff')->group(function () {
     Route::get('/dashboard', function () {
         return view('staff.dashboard');
     })->middleware('role:staff');
 });
 
+// ============================================
+// ADMIN ROUTES
+// ============================================
 Route::prefix('/admin')->middleware('role:admin')->group(function () {
     // Dashboard (Overview)
     Route::get('/dashboards', function () {
         $adminName = session('name', 'Admin User');
         $userId = session('user_id');
         $role = session('role');
-
         return view('admin.dashboards', compact('adminName', 'userId', 'role'));
     })->name('admin.dashboards');
 
-    // ✅ NEW: Analytics JSON endpoint (for charts)
+    // Analytics
     Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('admin.analytics');
-
-    // ✅ NEW: Analytics PDF export endpoint
     Route::post('/analytics/export-pdf', [AdminAnalyticsController::class, 'exportPdf'])->name('admin.analytics.export');
 
-    // Staff Management Routes - Using Controller
-    Route::get('/StaffManagement', [AdminStaffController::class, 'index'])->name('admin.staff.index');
-    Route::get('/staff/create', [AdminStaffController::class, 'create'])->name('admin.staff.create');
-    Route::post('/staff', [AdminStaffController::class, 'store'])->name('admin.staff.store');
-    Route::get('/staff/{userId}/edit', [AdminStaffController::class, 'edit'])->name('admin.staff.edit');
-    Route::put('/staff/{userId}', [AdminStaffController::class, 'update'])->name('admin.staff.update');
-    Route::delete('/staff/{userId}', [AdminStaffController::class, 'destroy'])->name('admin.staff.destroy');
-    Route::post('/staff/{userId}/toggle-status', [AdminStaffController::class, 'toggleStatus'])->name('admin.staff.toggle-status');
-    Route::get('/staff/search', [AdminStaffController::class, 'search'])->name('admin.staff.search');
-    Route::get('/staff/{userId}', [AdminStaffController::class, 'show'])->name('admin.staff.show');
+    // ============================================
+    // MEMBER MANAGEMENT ROUTES
+    // ============================================
 
-    // Member Management Routes - Using Controller
+    // Member List & Create
     Route::get('/MemberManagement', [AdminMemberController::class, 'index'])->name('admin.member.index');
     Route::get('/member/create', [AdminMemberController::class, 'create'])->name('admin.member.create');
     Route::post('/member', [AdminMemberController::class, 'store'])->name('admin.member.store');
+
+    // Member Search & Statistics (must be before {touristId} routes)
     Route::get('/member/search', [AdminMemberController::class, 'search'])->name('admin.member.search');
     Route::get('/member/statistics', [AdminMemberController::class, 'statistics'])->name('admin.member.statistics');
+
+    // Member Details & Export (must be before edit route)
+    Route::get('/member/{touristId}', [MemberDetailsController::class, 'show'])->name('admin.member.show');
+    Route::get('/member/{touristId}/export', [MemberDetailsController::class, 'exportMemberData'])->name('admin.member.export');
+
+    // Member Edit & Update
     Route::get('/member/{touristId}/edit', [AdminMemberController::class, 'edit'])->name('admin.member.edit');
     Route::put('/member/{touristId}', [AdminMemberController::class, 'update'])->name('admin.member.update');
+
+    // Member Status & Delete
     Route::delete('/member/{touristId}', [AdminMemberController::class, 'destroy'])->name('admin.member.destroy');
     Route::post('/member/{touristId}/toggle-status', [AdminMemberController::class, 'toggleStatus'])->name('admin.member.toggle-status');
-    Route::get('/member/{touristId}', [AdminMemberController::class, 'show'])->name('admin.member.show');
 
-    // Community Management Routes - Using Controller
-    Route::get('/CommunityManagement', [AdminCommunityController::class, 'index'])->name('admin.community.index');
-    Route::get('/community/{postId}', [AdminCommunityController::class, 'show'])->name('admin.community.show');
-    Route::post('/community/{postId}/status', [AdminCommunityController::class, 'updateStatus'])->name('admin.community.status');
-    Route::delete('/community/{postId}', [AdminCommunityController::class, 'destroy'])->name('admin.community.destroy');
-    Route::post('/community/report/{reportId}', [AdminCommunityController::class, 'updateReport'])->name('admin.community.report');
+    // Post Management within Member Details
+    Route::post('/member/post/{postId}/toggle-visibility', [MemberDetailsController::class, 'togglePostVisibility'])->name('admin.member.post.toggle-visibility');
+    Route::delete('/member/post/{postId}/delete', [MemberDetailsController::class, 'deletePost'])->name('admin.member.post.delete');
+
+    // ============================================
+    // COMMUNITY MANAGEMENT ROUTES
+    // ============================================
+
+    // Main page
+    Route::get('/CommunityManagement', [AdminCommunityController::class, 'index'])
+        ->name('admin.community.index');
+
+    // Create new post as admin
+    Route::get('/community/create', [AdminCommunityController::class, 'create'])
+        ->name('admin.community.create');
+    Route::post('/community/create', [AdminCommunityController::class, 'store'])
+        ->name('admin.community.store');
+
+    // Content CRUD (put specific routes before dynamic {postId})
+    Route::get('/community/users/blocked', [AdminCommunityController::class, 'getBlockedUsers'])
+        ->name('admin.community.blockedUsers');
+
+    Route::get('/community/{postId}', [AdminCommunityController::class, 'show'])
+        ->name('admin.community.show');
+    Route::put('/community/{postId}', [AdminCommunityController::class, 'update'])
+        ->name('admin.community.update');
+    Route::put('/community/{postId}/status', [AdminCommunityController::class, 'updateStatus'])
+        ->name('admin.community.updateStatus');
+    Route::delete('/community/{postId}', [AdminCommunityController::class, 'destroy'])
+        ->name('admin.community.destroy');
+
+    // User Blocking
+    Route::post('/community/user/block', [AdminCommunityController::class, 'blockUser'])
+        ->name('admin.community.blockUser');
+    Route::post('/community/user/unblock', [AdminCommunityController::class, 'unblockUser'])
+        ->name('admin.community.unblockUser');
+
+    // Warning System
+    Route::post('/community/warning/issue', [AdminCommunityController::class, 'issueWarning'])
+        ->name('admin.community.issueWarning');
+    Route::get('/community/post/{postId}/warnings', [AdminCommunityController::class, 'getPostWarnings'])
+        ->name('admin.community.postWarnings');
+    Route::get('/community/user/{touristId}/warnings', [AdminCommunityController::class, 'getUserWarnings'])
+        ->name('admin.community.userWarnings');
+    Route::post('/community/warning/{warningId}/dismiss', [AdminCommunityController::class, 'dismissWarning'])
+        ->name('admin.community.dismissWarning');
+
+    // Report Management
+    Route::post('/community/report/{reportId}', [AdminCommunityController::class, 'updateReport'])
+        ->name('admin.community.updateReport');
 
     // Business Management
     Route::get('/BusinessManagement', function () {

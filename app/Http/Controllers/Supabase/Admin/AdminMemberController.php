@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Supabase\Admin;
 
 use App\Http\Controllers\Supabase\BaseSupabaseController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AdminMemberController extends BaseSupabaseController
 {
@@ -58,7 +59,7 @@ class AdminMemberController extends BaseSupabaseController
             }
         } catch (\Exception $e) {
             // Log the error but continue with empty members
-            \Log::error('Member loading error: ' . $e->getMessage());
+            Log::error('Member loading error: ' . $e->getMessage());
         }
 
         return view('admin.MemberManagement', [

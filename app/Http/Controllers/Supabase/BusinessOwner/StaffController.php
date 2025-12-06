@@ -13,7 +13,7 @@ class StaffController extends BaseSupabaseController
     {
         $userId = session('user_id');
 
-        $result = $this->getTableData('Bussiness_Owner', ['user_id' => 'eq.' . $userId]);
+        $result = $this->getTableData('Business_Owner', ['user_id' => 'eq.' . $userId]);
 
 
         return $result;
@@ -33,7 +33,7 @@ class StaffController extends BaseSupabaseController
             'staff_id,contact_number,department,country,address,user_id,owner_id,registration_date,User(*)',
             $limit,
             $offset,
-            'staff_id', 
+            'staff_id',
             true
         );
 
