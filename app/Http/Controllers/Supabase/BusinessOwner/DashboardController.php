@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class DashboardController extends BaseSupabaseController
 {
-    protected $table = 'Business_Owner';
+    protected $table = 'Bussiness_Owner';
 
     public function getOwnerDetails()
     {
