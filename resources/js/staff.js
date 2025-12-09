@@ -81,6 +81,11 @@ document.addEventListener('click', async (e) => {
       stfModal.querySelector('input[name="department"]').value = data.department ?? '';
       stfModal.querySelector('input[name="phone"]').value = data.contact_number ?? '';
       stfModal.querySelector('input[name="address"]').value = data.address ?? '';
+      
+     
+      if (data.status) {
+        stfModal.querySelector('select[name="status"]').value = data.status;
+      }
 
       stfModal.classList.add('stfModal_active');
     } catch (error) {
@@ -89,8 +94,11 @@ document.addEventListener('click', async (e) => {
     }
 
     stfModalClose.onclick = () => stfModal.classList.remove('stfModal_active');
+    
     stfModalEdit.onclick = () => {
       stfModalInputs.forEach(i => i.removeAttribute('readonly'));
+      
+      stfModal.querySelector('select[name="status"]').removeAttribute('disabled');
       stfModalEdit.style.display = 'none';
       stfModalSave.style.display = 'inline-block';
     };

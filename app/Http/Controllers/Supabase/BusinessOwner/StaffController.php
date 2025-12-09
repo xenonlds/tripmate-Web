@@ -123,23 +123,32 @@ class StaffController extends BaseSupabaseController
         }
     }
 
-    public function update(Request $request, $staffId)
-    {
-        $data = [
-            'contact_number' => $request->input('phone'),
-            'department' => $request->input('department'),
-            'address' => $request->input('address'),
-        ];
+  public function update(Request $request, $staffId)
+{
 
-        $this->updateRecord($this->table, ['staff_id' => $staffId], $data);
+    $staffData = [
+        'contact_number' => $request->input('phone'),
+        'department' => $request->input('department'),
+        'address' => $request->input('address'),
+    ];
+    $this->updateRecord($this->table, ['staff_id' => $staffId], $staffData);
 
-        return redirect()->back()->with('success', 'Staff updated successfully sohai.');
+
+    if ($request->has('status')) {
+
+        $staff = $this->getTableData($this->table, ['staff_id' => 'eq.'.$staffId]);
+        
+        if (!empty($staff) && isset($staff[0]['user_id'])) {
+            $userId = $staff[0]['user_id'];
+            
+            $userData = [
+                'status' => $request->input('status')
+            ];
+            
+            $this->updateRecord('User', ['user_id' => $userId], $userData);
+        }
     }
 
-
-    public function destroy($staffId)
-    {
-        $this->deleteRecord($this->table, ['staff_id' => $staffId]);
-        return redirect()->back()->with('success', 'Staff deleted successfully.');
-    }
+    return redirect()->back()->with('success', 'Staff updated successfully.');
+}
 }

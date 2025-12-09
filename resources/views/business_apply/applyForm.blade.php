@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register Your Business</title>
-  <link rel="stylesheet" href="../css/form.css" />
+ 
+  @vite('resources/css/form.css')
 </head>
 <body>
   <div class="container">
@@ -12,10 +13,10 @@
     <p>Fill out the form below to register your hotel or restaurant with TripMate</p>
 
     <form class="form" 
-          action="/api/register-business" 
+          action="{{ url('guest/apply/store') }}" 
           method="POST" 
-          enctype="multipart/form-data">
-
+         >
+       @csrf
       <!-- Business Type -->
       <div class="section">
         <label class="section-title">Business Type</label>
@@ -31,14 +32,18 @@
           <label>Business Name</label>
           <input type="text" name="business_name" placeholder="Enter your business name" required />
         </div>
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label>Business License</label>
           <select name="business_license" required>
             <option value="">Select license type</option>
-            <option value="Tourism License">Tourism License</option>
+            <option value="Tourism License">Hotel License</option>
             <option value="Restaurant License">Restaurant License</option>
             <option value="Food Handling Permit">Food Handling Permit</option>
           </select>
+        </div> -->
+        <div class="form-group">
+          <label>Business License No.</label>
+          <input type="text" name="business_license_no" placeholder="Enter your business license number" required />
         </div>
       </div>
 
@@ -60,10 +65,7 @@
           <label>Phone Number</label>
           <input type="tel" name="phone" placeholder="+60 12-345 6789" required />
         </div>
-        <div class="form-group">
-          <label>Website (Optional)</label>
-          <input type="url" name="website" placeholder="https://yourwebsite.com" />
-        </div>
+        
       </div>
 
       <!-- Location -->
@@ -88,6 +90,14 @@
         </div>
       </div>
 
+       <div class="three-columns">
+        <div class="form-group">
+          <label>Country</label>
+          <input type="text" name="country" placeholder="Country" required />
+        </div>
+     
+      </div>
+
       <!-- Business Details -->
       <h4>Business Details</h4>
       <div class="form-group">
@@ -96,7 +106,7 @@
       </div>
 
       <!-- Upload Section -->
-      <h4>Upload Required Documents</h4>
+      <!-- <h4>Upload Required Documents</h4>
 
       <div class="form-group">
         <label>Business Registration Certificate (PDF or Image)</label>
@@ -116,7 +126,7 @@
       <div class="form-group">
         <label>Tax or SST Certificate (Optional)</label>
         <input type="file" name="tax_doc" accept=".pdf,.jpg,.jpeg,.png" />
-      </div>
+      </div> -->
 
       <button type="submit" class="submit-btn">Submit Registration</button>
     </form>

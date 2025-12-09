@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\Supabase\GUEST\GUESTController;
 
 use App\Http\Controllers\Supabase\BusinessOwner\{
     DashboardController as OwnerDashboard,
@@ -48,6 +49,21 @@ Route::get('/logout', function () {
     session()->regenerateToken();
     return redirect()->route('login')->with('success', 'You have been logged out successfully.');
 })->name('logout');
+
+
+// ============================================
+// Bussiness Register Form
+// ============================================
+
+
+Route::prefix('/guest')->group(function () {
+    Route::get('/applyform', function () {
+        return view('business_apply.applyForm');
+    });
+    Route::post('/apply/store', [GUESTController::class, 'store']);
+});
+
+
 
 // ============================================
 // BUSINESS OWNER ROUTES
@@ -183,8 +199,17 @@ Route::prefix('/admin')->middleware('role:admin')->group(function () {
         ->name('admin.community.updateReport');
 
     // Business Management
-    Route::get('/BusinessManagement', function () {
-        $adminName = session('name', 'Admin User');
-        return view('admin.BusinessManagement', compact('adminName'));
-    })->name('admin.business.index');
+        Route::get('/BusinessManagement', [GUESTController::class, 'index'])
+        ->name('admin.business.index');
+    
+    Route::get('/business/{ownerId}', [GUESTController::class, 'show'])
+        ->name('admin.business.details');
+    
+    Route::post('/business/{ownerId}/approve', [GUESTController::class, 'approve'])
+        ->name('admin.business.approve');
+    
+    Route::post('/business/{ownerId}/decline', [GUESTController::class, 'decline'])
+        ->name('admin.business.decline');
+
+ 
 });

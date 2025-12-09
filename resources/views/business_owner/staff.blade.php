@@ -96,7 +96,7 @@
             <td>{{ $staff['contact_number'] }}</td>
 
             @php
-            $status = strtolower($staff['user']['status'] ?? 'inactive');
+            $status = strtolower($staff['User']['status'] ?? 'inactive');
             $isActive = $status === 'active';
             @endphp
 
@@ -116,14 +116,14 @@
 
             <td>{{ $staff['registration_date'] }}</td>
             <td>
-              <button
+              <!-- <button
                 class="btn-action"
                 type="button"
                 data-user-id="{{  $staff['User']['user_id'] }}"
                 data-status="{{ $isActive ? 'active' : 'inactive' }}"
                 aria-label="{{ ($isActive ? 'Deactivate' : 'Activate') . ' ' . ($staff->user->name ?? 'Unknown') }}">
                 {{ $isActive ? 'Deactivate' : 'Activate' }}
-              </button>
+              </button> -->
             </td>
 
 

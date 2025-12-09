@@ -120,6 +120,28 @@
       background: #dc2626;
     }
 
+    /* Alert Messages */
+    .alert {
+      max-width: 1400px;
+      margin: 24px auto;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .alert-success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
     /* Main Container */
     .container {
       max-width: 1400px;
@@ -225,19 +247,20 @@
       border-radius: 12px;
       font-size: 12px;
       font-weight: 600;
+      text-transform: capitalize;
     }
 
-    .status-pending {
+    .status-pending, .status-Pending {
       background: #fef3c7;
       color: #92400e;
     }
 
-    .status-approved {
+    .status-approved, .status-Approved, .status-active {
       background: #dcfce7;
       color: #166534;
     }
 
-    .status-declined {
+    .status-declined, .status-Declined {
       background: #fee2e2;
       color: #991b1b;
     }
@@ -257,6 +280,8 @@
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
     }
 
     .btn:hover {
@@ -291,43 +316,17 @@
       background: #fee2e2;
     }
 
-    /* Pagination */
-    .pagination {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 24px;
-    }
-
-    .page-info {
-      font-size: 14px;
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
       color: #64748b;
     }
 
-    .page-buttons {
-      display: flex;
-      gap: 8px;
-    }
-
-    .page-btn {
-      padding: 8px 16px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-    }
-
-    .page-btn:hover {
-      background: #f8fafc;
-    }
-
-    .page-btn:disabled {
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
       opacity: 0.5;
-      cursor: not-allowed;
     }
 
     /* Responsive */
@@ -358,11 +357,6 @@
       .operation-buttons {
         flex-wrap: wrap;
       }
-
-      .pagination {
-        flex-direction: column;
-        gap: 16px;
-      }
     }
   </style>
 </head>
@@ -377,13 +371,12 @@
         </div>
       </div>
 
-            <ul class="nav-links">
-                <li><a href="/dashboards" class="active">Overview</a></li>
-                <li><a href="/admin/MemberManagement">Members</a></li>
-                <li><a href="/admin/CommunityManagement">Community</a></li>
-                <li><a href="/admin/BusinessManagement">Business</a></li>
-            </ul>
-
+      <ul class="nav-links">
+        <li><a href="/dashboards">Overview</a></li>
+        <li><a href="/admin/MemberManagement">Members</a></li>
+        <li><a href="/admin/CommunityManagement">Community</a></li>
+        <li><a href="/admin/BusinessManagement" class="active">Business</a></li>
+      </ul>
 
       <div class="user-section">
         <div class="user-info">
@@ -394,6 +387,19 @@
       </div>
     </div>
   </header>
+
+  <!-- Alert Messages -->
+  @if(session('success'))
+  <div class="alert alert-success">
+    {{ session('success') }}
+  </div>
+  @endif
+
+  @if(session('error'))
+  <div class="alert alert-error">
+    {{ session('error') }}
+  </div>
+  @endif
 
   <!-- Main Container -->
   <div class="container">
@@ -406,7 +412,7 @@
       </div>
       <div class="filter-box">
         <select id="statusFilter" onchange="filterTable()">
-          <option value="">All</option>
+          <option value="">All Status</option>
           <option value="Pending">Pending</option>
           <option value="Approved">Approved</option>
           <option value="Declined">Declined</option>
@@ -427,147 +433,48 @@
           </tr>
         </thead>
         <tbody>
+          @forelse($businesses as $business)
           <tr>
-            <td>Hotel Paradise</td>
-            <td>Hotel</td>
-            <td>Kuala Lumpur</td>
-            <td><span class="status-badge status-pending">Pending</span></td>
+            <td>{{ $business['business_name'] }}</td>
+            <td>{{ $business['type'] }}</td>
+            <td>{{ $business['location'] }}</td>
+            <td>
+              <span class="status-badge status-{{ $business['status'] }}">
+                {{ $business['status'] }}
+              </span>
+            </td>
             <td>
               <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('Hotel Paradise')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('Hotel Paradise')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('Hotel Paradise')">Decline</button>
+                <a href="{{ route('admin.business.details', $business['owner_id']) }}" class="btn btn-details">
+                  Details
+                </a>
+                <form action="{{ route('admin.business.approve', $business['owner_id']) }}" method="POST" style="display: inline;">
+                  @csrf
+                  <button type="submit" class="btn btn-approve" onclick="return confirm('Are you sure you want to approve this business?')">
+                    Approve
+                  </button>
+                </form>
+                <form action="{{ route('admin.business.decline', $business['owner_id']) }}" method="POST" style="display: inline;">
+                  @csrf
+                  <button type="submit" class="btn btn-decline" onclick="return confirm('Are you sure you want to decline this business?')">
+                    Decline
+                  </button>
+                </form>
               </div>
             </td>
           </tr>
+          @empty
           <tr>
-            <td>Beach Resort</td>
-            <td>Hotel</td>
-            <td>Penang</td>
-            <td><span class="status-badge status-approved">Approved</span></td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('Beach Resort')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('Beach Resort')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('Beach Resort')">Decline</button>
+            <td colspan="5">
+              <div class="empty-state">
+                <i class="fas fa-building"></i>
+                <p>No business applications found</p>
               </div>
             </td>
           </tr>
-          <tr>
-            <td>Skyline Hotel</td>
-            <td>Hotel</td>
-            <td>Johor Bahru</td>
-            <td><span class="status-badge status-declined">Declined</span></td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('Skyline Hotel')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('Skyline Hotel')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('Skyline Hotel')">Decline</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Mountain View Inn</td>
-            <td>Hotel</td>
-            <td>Cameron Highlands</td>
-            <td><span class="status-badge status-pending">Pending</span></td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('Mountain View Inn')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('Mountain View Inn')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('Mountain View Inn')">Decline</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>City Central Hotel</td>
-            <td>Hotel</td>
-            <td>Malacca</td>
-            <td><span class="status-badge status-approved">Approved</span></td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('City Central Hotel')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('City Central Hotel')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('City Central Hotel')">Decline</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Golden Dragon Hotel</td>
-            <td>Hotel</td>
-            <td>Ipoh</td>
-            <td><span class="status-badge status-declined">Declined</span></td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('Golden Dragon Hotel')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('Golden Dragon Hotel')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('Golden Dragon Hotel')">Decline</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Blue Lagoon Resort</td>
-            <td>Hotel</td>
-            <td>Langkawi</td>
-            <td><span class="status-badge status-pending">Pending</span></td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('Blue Lagoon Resort')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('Blue Lagoon Resort')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('Blue Lagoon Resort')">Decline</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Palm Grove Hotel</td>
-            <td>Hotel</td>
-            <td>Kuantan</td>
-            <td><span class="status-badge status-approved">Approved</span></td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('Palm Grove Hotel')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('Palm Grove Hotel')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('Palm Grove Hotel')">Decline</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Sunset Hotel</td>
-            <td>Hotel</td>
-            <td>Sabah</td>
-            <td><span class="status-badge status-declined">Declined</span></td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('Sunset Hotel')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('Sunset Hotel')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('Sunset Hotel')">Decline</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Riverfront Inn</td>
-            <td>Hotel</td>
-            <td>Sarawak</td>
-            <td><span class="status-badge status-pending">Pending</span></td>
-            <td>
-              <div class="operation-buttons">
-                <button class="btn btn-details" onclick="viewDetails('Riverfront Inn')">Details</button>
-                <button class="btn btn-approve" onclick="approveBusiness('Riverfront Inn')">Approve</button>
-                <button class="btn btn-decline" onclick="declineBusiness('Riverfront Inn')">Decline</button>
-              </div>
-            </td>
-          </tr>
+          @endforelse
         </tbody>
       </table>
-
-      <!-- Pagination -->
-      <div class="pagination">
-        <div class="page-info">Page 1 of 2</div>
-        <div class="page-buttons">
-          <button class="page-btn" disabled>Previous</button>
-          <button class="page-btn">Next</button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -579,6 +486,9 @@
       const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
 
       for (let row of rows) {
+        // Skip empty state row
+        if (row.cells.length === 1) continue;
+
         const name = row.cells[0].textContent.toLowerCase();
         const location = row.cells[2].textContent.toLowerCase();
         const status = row.cells[3].textContent.trim();
@@ -587,25 +497,6 @@
         const matchesStatus = statusFilter === '' || status === statusFilter;
 
         row.style.display = matchesSearch && matchesStatus ? '' : 'none';
-      }
-    }
-
-    function viewDetails(name) {
-      alert('View details for: ' + name);
-      // Implement view details functionality
-    }
-
-    function approveBusiness(name) {
-      if (confirm('Are you sure you want to approve ' + name + '?')) {
-        alert('Approved: ' + name);
-        // Implement approve functionality
-      }
-    }
-
-    function declineBusiness(name) {
-      if (confirm('Are you sure you want to decline ' + name + '?')) {
-        alert('Declined: ' + name);
-        // Implement decline functionality
       }
     }
 
