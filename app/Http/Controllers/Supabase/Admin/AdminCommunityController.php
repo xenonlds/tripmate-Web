@@ -50,9 +50,13 @@ class AdminCommunityController extends BaseSupabaseController
             if ($statusFilter) {
                 $allPosts = array_filter($allPosts, function($post) use ($statusFilter) {
                     if ($statusFilter === 'hidden') {
-                        return isset($post['is_hidden']) && $post['is_hidden'] === true;
+                        // Show posts hidden by admin OR by user
+                        return (isset($post['hidden_by_admin']) && $post['hidden_by_admin'] === true) ||
+                               (isset($post['is_hidden']) && $post['is_hidden'] === true);
                     } elseif ($statusFilter === 'active') {
-                        return !isset($post['is_hidden']) || $post['is_hidden'] === false;
+                        // Show posts that are not hidden by admin AND not hidden by user
+                        return (!isset($post['hidden_by_admin']) || $post['hidden_by_admin'] === false) &&
+                               (!isset($post['is_hidden']) || $post['is_hidden'] === false);
                     }
                     return true;
                 });
@@ -309,12 +313,22 @@ class AdminCommunityController extends BaseSupabaseController
         try {
             $status = $request->status;
 
+            // Admin controls hidden_by_admin, not is_hidden (which is for user privacy)
             $update = [
-                'is_hidden' => $status === 'hidden',
+                'hidden_by_admin' => $status === 'hidden',
                 'status'    => $status === 'removed' ? 'inactive' : 'active',
             ];
 
+            // Optional: Track reason for admin hiding
+            if ($status === 'hidden' && $request->has('reason')) {
+                $update['admin_hide_reason'] = $request->reason;
+            } elseif ($status === 'active') {
+                $update['admin_hide_reason'] = null;
+            }
+
             $this->updateRecord($this->communityTable, ['postID' => $postId], $update);
+
+            Log::info("Post $postId status updated by admin: $status");
 
             return response()->json(['success' => true, 'message' => 'Status updated']);
 
@@ -397,6 +411,8 @@ class AdminCommunityController extends BaseSupabaseController
                 'status' => 'active',
                 'like_count' => 0,
                 'is_hidden' => false,
+                'hidden_by_admin' => false,
+                'admin_hide_reason' => null,
                 'created_at' => now()->toIso8601String()
             ];
 
@@ -522,12 +538,13 @@ class AdminCommunityController extends BaseSupabaseController
                 ]);
             }
 
-            // Hide all user's posts
+            // Hide all user's posts using admin hide (cannot be unhidden by user)
             $userPosts = $this->getTableData($this->communityTable, ['tourist_id' => "eq.$touristId"]);
             if (is_array($userPosts)) {
                 foreach ($userPosts as $post) {
                     $this->updateRecord($this->communityTable, ['postID' => $post['postID']], [
-                        'is_hidden' => true,
+                        'hidden_by_admin' => true,
+                        'admin_hide_reason' => 'User blocked by admin',
                         'status' => 'inactive'
                     ]);
                 }
@@ -696,11 +713,12 @@ class AdminCommunityController extends BaseSupabaseController
                 $this->blockUser($blockRequest);
                 $action = 'User blocked due to multiple warnings';
             } elseif ($warningCount >= 2) {
-                // 2 warnings = Hide post
+                // 2 warnings = Hide post (admin hide, cannot be overridden by user)
                 $this->updateRecord($this->communityTable, ['postID' => $postId], [
-                    'is_hidden' => true
+                    'hidden_by_admin' => true,
+                    'admin_hide_reason' => 'Automatically hidden after 2nd warning'
                 ]);
-                $action = 'Post hidden';
+                $action = 'Post hidden by admin (user cannot unhide)';
             } else {
                 // 1 warning = Just warn
                 $action = 'Warning issued';

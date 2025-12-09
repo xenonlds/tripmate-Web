@@ -483,14 +483,19 @@
         <div class="page-header">
             <h1 class="page-title">Post Details</h1>
             <div class="action-buttons">
-                @if($post['is_hidden'] ?? false)
+                @if($post['hidden_by_admin'] ?? false)
                     <button class="btn btn-warning" onclick="toggleVisibility(false)">
-                        <i class="fas fa-eye"></i> Unhide Post
+                        <i class="fas fa-eye"></i> Unhide Post (Admin)
                     </button>
                 @else
                     <button class="btn btn-secondary" onclick="toggleVisibility(true)">
-                        <i class="fas fa-eye-slash"></i> Hide Post
+                        <i class="fas fa-eye-slash"></i> Hide Post (Admin)
                     </button>
+                @endif
+                @if($post['is_hidden'] ?? false)
+                    <span class="badge" style="background: #94a3b8; padding: 8px 12px;">
+                        <i class="fas fa-lock"></i> User set as Private
+                    </span>
                 @endif
                 <button class="btn btn-warning" onclick="window.location.href='{{ route('admin.community.index') }}'">
                     <i class="fas fa-exclamation-triangle"></i> Issue Warning
@@ -526,8 +531,10 @@
                     <span><strong>Comments:</strong> {{ $commentsCount }}</span>
                 </div>
                 <div class="post-meta-item">
-                    @if($post['is_hidden'] ?? false)
-                        <span class="status-badge hidden"><i class="fas fa-eye-slash"></i> Hidden</span>
+                    @if($post['hidden_by_admin'] ?? false)
+                        <span class="status-badge blocked"><i class="fas fa-ban"></i> Hidden by Admin</span>
+                    @elseif($post['is_hidden'] ?? false)
+                        <span class="status-badge hidden"><i class="fas fa-eye-slash"></i> Hidden by User</span>
                     @else
                         <span class="status-badge active"><i class="fas fa-check"></i> Active</span>
                     @endif
@@ -667,7 +674,10 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
-                    body: JSON.stringify({ is_hidden: hide })
+                    body: JSON.stringify({
+                        status: hide ? 'hidden' : 'active',
+                        reason: 'Manual admin moderation'
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {

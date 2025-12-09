@@ -792,8 +792,10 @@
                 <div class="post-info">
                   <h3 class="post-title">
                     {{ $post['title'] ?? 'Untitled Post' }}
-                    @if(isset($post['is_hidden']) && $post['is_hidden'])
-                      <span class="hidden-badge">HIDDEN</span>
+                    @if(isset($post['hidden_by_admin']) && $post['hidden_by_admin'])
+                      <span class="hidden-badge" style="background: #dc2626;">ADMIN HIDDEN</span>
+                    @elseif(isset($post['is_hidden']) && $post['is_hidden'])
+                      <span class="hidden-badge" style="background: #94a3b8;">USER PRIVATE</span>
                     @endif
                   </h3>
                   <p class="post-date">
@@ -803,9 +805,9 @@
                 </div>
                 <div class="post-actions">
                   <button class="post-btn post-btn-hide"
-                          onclick="togglePostVisibility('{{ $post['postID'] }}', {{ $post['is_hidden'] ? 'true' : 'false' }})">
-                    <i class="fas fa-eye{{ $post['is_hidden'] ? '' : '-slash' }}"></i>
-                    {{ $post['is_hidden'] ? 'Unhide' : 'Hide' }}
+                          onclick="togglePostVisibility('{{ $post['postID'] }}', {{ ($post['hidden_by_admin'] ?? false) ? 'true' : 'false' }})">
+                    <i class="fas fa-eye{{ ($post['hidden_by_admin'] ?? false) ? '' : '-slash' }}"></i>
+                    {{ ($post['hidden_by_admin'] ?? false) ? 'Unhide' : 'Hide' }} (Admin)
                   </button>
                   <button class="post-btn post-btn-delete"
                           onclick="deletePost('{{ $post['postID'] }}', '{{ addslashes($post['title'] ?? 'this post') }}')">

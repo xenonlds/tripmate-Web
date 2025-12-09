@@ -193,7 +193,11 @@ class MemberDetailsController extends BaseSupabaseController
                 $stats['total_posts'] = count($posts);
 
                 foreach ($posts as $post) {
-                    if (isset($post['is_hidden']) && $post['is_hidden']) {
+                    // Count as hidden if hidden by user OR by admin
+                    $isHidden = (isset($post['is_hidden']) && $post['is_hidden']) ||
+                                (isset($post['hidden_by_admin']) && $post['hidden_by_admin']);
+
+                    if ($isHidden) {
                         $stats['hidden_posts']++;
                     } else {
                         $stats['active_posts']++;
@@ -221,7 +225,7 @@ class MemberDetailsController extends BaseSupabaseController
     }
 
     /**
-     * Toggle post visibility (hide/unhide)
+     * Toggle post visibility (hide/unhide) - Admin control
      */
     public function togglePostVisibility(Request $request, $postId)
     {
@@ -232,18 +236,30 @@ class MemberDetailsController extends BaseSupabaseController
                 return response()->json(['error' => 'Post not found'], 404);
             }
 
-            $currentStatus = $post[0]['is_hidden'] ?? false;
+            // Admin toggles hidden_by_admin, not is_hidden (user privacy)
+            $currentStatus = $post[0]['hidden_by_admin'] ?? false;
             $newStatus = !$currentStatus;
+
+            $updateData = [
+                'hidden_by_admin' => $newStatus
+            ];
+
+            // Add/remove reason
+            if ($newStatus) {
+                $updateData['admin_hide_reason'] = $request->reason ?? 'Hidden by admin';
+            } else {
+                $updateData['admin_hide_reason'] = null;
+            }
 
             $this->supabase->update('Community',
                 ['postID' => 'eq.' . $postId],
-                ['is_hidden' => $newStatus]
+                $updateData
             );
 
             return response()->json([
                 'success' => true,
-                'is_hidden' => $newStatus,
-                'message' => $newStatus ? 'Post hidden successfully' : 'Post unhidden successfully'
+                'hidden_by_admin' => $newStatus,
+                'message' => $newStatus ? 'Post hidden by admin successfully' : 'Post unhidden successfully'
             ]);
 
         } catch (\Exception $e) {

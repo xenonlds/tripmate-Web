@@ -899,7 +899,7 @@
 
                 // Count hidden vs active posts
                 if (data.posts && data.posts.length > 0) {
-                    const hiddenCount = data.posts.filter(p => p.is_hidden).length;
+                    const hiddenCount = data.posts.filter(p => p.is_hidden || p.hidden_by_admin).length;
                     const activeCount = data.posts.length - hiddenCount;
                     console.log(`   ├─ Active: ${activeCount}`);
                     console.log(`   ├─ Hidden: ${hiddenCount}`);
@@ -923,8 +923,10 @@
                 tbody.innerHTML = data.posts.map(post => {
                     // Show both active and hidden posts with appropriate badges
                     let statusBadge;
-                    if (post.is_hidden) {
-                        statusBadge = '<span class="badge hidden">Hidden</span>';
+                    if (post.hidden_by_admin) {
+                        statusBadge = '<span class="badge blocked">Hidden by Admin</span>';
+                    } else if (post.is_hidden) {
+                        statusBadge = '<span class="badge hidden">Hidden by User</span>';
                     } else {
                         statusBadge = '<span class="badge active">Active</span>';
                     }
@@ -961,15 +963,16 @@
                                     <button class="btn btn-sm" onclick='editPost(${JSON.stringify(post).replace(/'/g, "&#39;")})' title="Edit post">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
-                                    ${post.is_hidden ? `
-                                    <button class="btn btn-sm btn-warning" onclick="togglePostVisibility('${post.postID}', false)" title="Unhide post">
+                                    ${post.hidden_by_admin ? `
+                                    <button class="btn btn-sm btn-warning" onclick="togglePostVisibility('${post.postID}', false)" title="Unhide post (Admin)">
                                         <i class="fas fa-eye"></i> Unhide
                                     </button>
                                     ` : `
-                                    <button class="btn btn-sm btn-secondary" onclick="togglePostVisibility('${post.postID}', true)" title="Hide post">
+                                    <button class="btn btn-sm btn-secondary" onclick="togglePostVisibility('${post.postID}', true)" title="Hide post (Admin)">
                                         <i class="fas fa-eye-slash"></i> Hide
                                     </button>
                                     `}
+                                    ${post.is_hidden ? '<span class="badge" style="font-size: 10px; background: #94a3b8;">User Private</span>' : ''}
                                     ${!isAdminPost ? `
                                     <button class="btn btn-warning btn-sm" onclick="showWarningModal('${post.postID}', '${post.tourist_id}')">
                                         <i class="fas fa-exclamation-triangle"></i> Warn
@@ -1048,9 +1051,13 @@
             if (previewDate) previewDate.textContent = post.created_at ? new Date(post.created_at).toLocaleDateString() : 'Unknown';
             if (previewLikes) previewLikes.textContent = post.like_count || 0;
             if (previewStatus) {
-                previewStatus.innerHTML = post.is_hidden
-                    ? '<span class="badge hidden">Hidden</span>'
-                    : '<span class="badge active">Active</span>';
+                if (post.hidden_by_admin) {
+                    previewStatus.innerHTML = '<span class="badge blocked">Hidden by Admin</span>';
+                } else if (post.is_hidden) {
+                    previewStatus.innerHTML = '<span class="badge hidden">Hidden by User</span>';
+                } else {
+                    previewStatus.innerHTML = '<span class="badge active">Active</span>';
+                }
             }
 
             // Clear any previous alerts
